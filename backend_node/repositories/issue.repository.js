@@ -1,4 +1,4 @@
-import redis from "../services/redis.service.js"
+import redis from '../services/redis.service.js'
 
 async function getIssue(issueNumber) {
     const issueObject = await redis.get(`issue:${issueNumber}`)
@@ -9,7 +9,7 @@ async function setIssue(issueNumber, issueObject) {
     await redis.set(
         `issue:${issueNumber}`,
         JSON.stringify(issueObject),
-        "ex",
+        'ex',
         3600
     )
 }
