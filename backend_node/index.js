@@ -1,17 +1,15 @@
-const app = require("express")();
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const port = 8082;
-app.use(bodyParser.json());
+import express from 'express'
+import issueRoutes from '../backend_node/routes/issue.routes.js'
+const port = 8082
 
-app.use(cors());
+const app = express()
 
+//middlewares
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
-app.get('/issue/:issue', function(req, res) {
-    return res.json({issue: parseInt(req.params.issue,10)})
-})
-
+app.use('/api/issue', issueRoutes)
 
 app.listen(port, () => {
-    console.log(`Backend node listen in port ${port}`);
-});
+    console.log(`Backend node listen in port ${port}`)
+})
