@@ -1,31 +1,34 @@
-import issueRepositori from '../../backend_node/repositories/issue.repositories.js'
-import issueRepositories from '../../backend_node/repositories/issue.repositories.js'
+import issueRepository from "../../backend_node/repositories/issue.repository.js"
 
-async function join (req, res) {
-    let data = await issueRepositories.getIssue(req.params.issue)
+async function join(req, res) {
+    let data = await issueRepository.getIssue(req.params.issue)
     if (data == null) {
         data = {
-            status : 'joining',
-            members: []
+            status: "joining",
+            members: [],
         }
     }
 
     let newMember = {
         name: req.body.name,
-        status: 'waiting'
+        status: "waiting",
     }
     data.members.push(newMember)
-    await issueRepositories.setIssue(req.params.issue, data)
-    
-    res.json(data)
+    await issueRepository.setIssue(req.params.issue, data)
+
+    return res.json(data)
 }
 
-function vote (req, res) {
-    res.json({messaje: 'vote'})
+function vote(req, res) {
+    return res.json({ messaje: "vote" })
 }
 
-async function status (req, res) {
-    res.json(await issueRepositori.getIssue(req.params.issue))
+async function status(req, res) {
+    let data = await issueRepository.getIssue(req.params.issue)
+    if (data == null) {
+        return res.json({ messaje: "issue does not exist" })
+    }
+    return res.json(await issueRepository.getIssue(req.params.issue))
 }
 
-export default {join, vote, status}
+export default { join, vote, status }
