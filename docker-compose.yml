@@ -1,36 +1,13 @@
 version: '3.2'
 
 services:
-  backend:
-    image: thecodingmachine/php:8.0-v4-cli
-    environment:
-      STARTUP_COMMAND_1: composer install
-      #Switch it on for debug
-      #PHP_EXTENSION_XDEBUG: 1
-    volumes:
-      - "./backend/:/app"
-    working_dir: /app
-    command: "php -S 0.0.0.0:8081 -t public public/index.php"
-    ports:
-      - 8081:8081
-    expose:
-      - "8081"
-    links:
-      - redis
-    depends_on:
-      - redis
-    networks:
-      - challenge
-
   backend_node:
     image: "node:12"
     volumes:
       - "./backend_node/:/home/node/app"
     expose:
       - "8082"
-    command: bash -c "
-      npm ci && npm run serve
-      "
+    command: bash -c "npm i && npm run dev"
     working_dir: /home/node/app
     ports:
       - 8082:8082
@@ -47,16 +24,13 @@ services:
       - "./frontend/:/home/node/app"
     expose:
       - "8080"
-    command: bash -c "
-      npm ci && npm run serve
-      "
+    command: bash -c "npm i && npm run serve"
     working_dir: /home/node/app
     ports:
       - 8080:8080
     links:
-      - backend
+      - backend_node
     depends_on:
-      - backend
       - backend_node
     networks:
       - challenge
