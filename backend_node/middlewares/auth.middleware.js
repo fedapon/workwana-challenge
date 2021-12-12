@@ -32,4 +32,4 @@ async function verifyJwt(token) {
     })
 }
 
-export default authMiddleware
+export {authMiddleware, verifyJwt}

@@ -1,6 +1,6 @@
 import express from 'express'
-import issueControllers from '../../backend_node/controllers/issue.controllers.js'
-import authMiddleware from '../../backend_node/middlewares/auth.middleware.js'
+import issueControllers from '../controllers/issue.controllers.js'
+import { authMiddleware } from '../middlewares/auth.middleware.js'
 
 const issueRoutes = express.Router()
 
