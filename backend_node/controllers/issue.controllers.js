@@ -1,4 +1,5 @@
-import issueRepository from '../../backend_node/repositories/issue.repository.js'
+import issueRepository from '../repositories/issue.repository.js'
+import { socketIoServer } from '../services/socket.service.js'
 import jwt from 'jsonwebtoken'
 
 async function join(req, res) {
@@ -16,9 +17,10 @@ async function join(req, res) {
         status: 'joined'
     }
     issueObj.members.push(newMember)
-    await issueRepository.setIssue(req.params.issue, issueObj)
 
     let token = await generateToken(req.params.issue, newMember.id)
+    await issueRepository.setIssue(req.params.issue, issueObj)
+    emitUpdates(req.params.issue, issueObj)
 
     return res.json({ ...newMember, token })
 }
@@ -65,6 +67,7 @@ async function vote(req, res) {
         }
         issueObj.status = req.body.status
         await issueRepository.setIssue(req.params.issue, issueObj)
+        emitUpdates(req.params.issue, issueObj)
         return res.json({ messaje: 'status succesfully changed' })
     }
 
@@ -93,7 +96,8 @@ async function vote(req, res) {
     }
     issueObj.members.splice(userIndex, 1, newMemberData)
 
-    await issueRepository.setIssue(req.body.issue, issueObj)
+    await issueRepository.setIssue(req.params.issue, issueObj)
+    emitUpdates(req.params.issue, issueObj)
 
     return res.json({ messaje: 'succesfull voted' })
 }
@@ -111,21 +115,11 @@ async function status(req, res) {
     if (issueObj == null) {
         return res.json({ messaje: 'issue does not exist' })
     }
-    if (issueObj.status != 'reveal') {
-        return res.json(hideVoteValues(issueObj))
+    if (issueObj.status == 'reveal') {
+        issueObj.avg = getVoteAverage(issueObj)
+        return res.json(issueObj)
     }
-
-    issueObj.avg = getVoteAverage(issueObj)
-
-    return res.json(issueObj)
-}
-
-function hideVoteValues(issueObj) {
-    let filteredObj = { ...issueObj }
-    for (let i = 0; i < filteredObj.members.length; i++) {
-        delete filteredObj.members[i].value
-    }
-    return filteredObj
+    return res.json(hideNotAllowedInformationToUsers(issueObj))
 }
 
 function getVoteAverage(issueObj) {
@@ -138,6 +132,24 @@ function getVoteAverage(issueObj) {
         return total
     }, 0)
     return sum / voters
+}
+
+function hideNotAllowedInformationToUsers(issueObj) {
+    if (issueObj.status != 'reveal') {
+        let filteredObj = { ...issueObj }
+        for (let i = 0; i < filteredObj.members.length; i++) {
+            delete filteredObj.members[i].value
+        }
+        return filteredObj
+    }
+    return { ...issueObj }
+}
+
+function emitUpdates(room, issueObj) {
+    let emitData = hideNotAllowedInformationToUsers(issueObj)
+    socketIoServer
+        .to(`issue:${room}`)
+        .emit('server:update', JSON.stringify(emitData))
 }
 
 export default { join, vote, status }
