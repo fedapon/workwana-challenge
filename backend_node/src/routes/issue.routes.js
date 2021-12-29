@@ -1,13 +1,13 @@
 import express from 'express'
-import issueControllers from '../controllers/issue.controllers.js'
+import issueController from '../controllers/issue.controller.js'
 import { authMiddleware } from '../middlewares/auth.middleware.js'
 
 const issueRoutes = express.Router()
 
-issueRoutes.post('/:issue/join', issueControllers.join)
+issueRoutes.post('/:issue/join', issueController.join)
 
-issueRoutes.post('/:issue/vote', authMiddleware, issueControllers.vote)
+issueRoutes.post('/:issue/vote', authMiddleware, issueController.vote)
 
-issueRoutes.get('/:issue', issueControllers.status)
+issueRoutes.get('/:issue', issueController.status)
 
 export default issueRoutes
