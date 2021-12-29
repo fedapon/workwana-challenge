@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest",
     "dev": "nodemon -L src/index.js"
   },
   "author": "",
@@ -22,6 +22,7 @@
     "socket.io": "^4.4.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "jest": "^27.4.5",
     "nodemon": "^2.0.15"
   }
